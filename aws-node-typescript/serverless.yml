@@ -2,6 +2,7 @@ service: aws-node-typescript
 frameworkVersion: '3'
 
 provider:
+  name: default
   runtime: nodejs18.x
 
 functions:
