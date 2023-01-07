@@ -54,7 +54,8 @@ jobs:
     - name: Deploy '${{ matrix.directory }}' to aws ${{ needs.changes.outputs.environment }} environment
       uses: serverless/github-action@v3.1
       with:
-        args: deploy
+          args: -c "cd ./${{ matrix.directory }} && serverless deploy"
+          entrypoint: /bin/sh
       env:
         SERVERLESS_ACCESS_KEY: ${{ secrets.SERVERLESS_ACCESS_KEY }}
         # or if using AWS credentials directly
