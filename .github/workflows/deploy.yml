@@ -17,6 +17,7 @@ jobs:
     - uses: dorny/paths-filter@v2
       id: filter
       with:
+        # To the deploy a new function you only have to add it here!
         filters: |
           aws-node-typescript: aws-node-typescript/**    
           aws-node-http-api-typescript: aws-node-http-api-typescript/**
@@ -37,6 +38,8 @@ jobs:
     environment: 
       name: ${{ needs.changes.outputs.environment }}
     needs: [changes]
+    # execute job only if there are changes
+    if: needs.changes.outputs.functions[0] != null
     strategy:
       matrix:
         directory: ${{ fromJSON(needs.changes.outputs.functions) }}
