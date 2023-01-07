@@ -1,2 +1,2 @@
 # serverless-functions
-Repo for testing serveless framework
+Repo for testing serverless framework

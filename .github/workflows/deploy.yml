@@ -1,6 +1,9 @@
 name: Deploy master branch
 
-on: push
+on:
+  push:
+    branches:
+      - [master, develop]
 
 jobs:
   changes:
@@ -16,7 +19,6 @@ jobs:
         filters: |
           aws-node-typescript: aws-node-typescript/**    
           aws-node-http-api-typescript: aws-node-http-api-typescript/**
-        # folder-2: folder-2/**
 
     - name: Check branch and set environment
       id: branch_check
@@ -55,7 +57,7 @@ jobs:
     - name: Deploy '${{ matrix.directory }}' to aws ${{ needs.changes.outputs.environment }} environment
       uses: serverless/github-action@v3.1
       with:
-          args: -c "cd ./${{ matrix.directory }} && serverless deploy --region eu-central-1"
+          args: -c "cd ./${{ matrix.directory }} && serverless deploy --region eu-central-1 --stage ${{ needs.changes.outputs.environment }}"
           entrypoint: /bin/sh
       env:
         SERVERLESS_ACCESS_KEY: ${{ secrets.SERVERLESS_ACCESS_KEY }}
