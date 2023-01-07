@@ -3,7 +3,8 @@ name: Deploy master branch
 on:
   push:
     branches:
-      - [master, develop]
+      - master
+      - develop
 
 jobs:
   changes:
