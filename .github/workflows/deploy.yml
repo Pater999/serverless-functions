@@ -39,7 +39,7 @@ jobs:
       name: ${{ needs.changes.outputs.environment }}
     needs: [changes]
     # execute job only if there are changes
-    if: needs.changes.outputs.functions[0] != null
+    if: fromJSON(needs.changes.outputs.functions)[0] != null
     strategy:
       matrix:
         directory: ${{ fromJSON(needs.changes.outputs.functions) }}
