@@ -1,0 +1,66 @@
+name: Deploy master branch
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  changes:
+    runs-on: ubuntu-latest
+    outputs:
+      functions: ${{ steps.filter.outputs.changes }}
+      environment: ${{ steps.branch_check.outputs.env_name }}
+    steps:
+    - uses: actions/checkout@v3
+    - uses: dorny/paths-filter@v2
+      id: filter
+      with:
+        base: 'develop'
+        filters: |
+          aws-node-typescript: aws-node-typescript/**    
+        # folder-2: folder-2/**
+
+    - name: Check branch and set environment
+      id: branch_check
+      run: |
+        echo "Running on branch ${{ github.ref }}"
+        if [ "${{ github.ref }}" = "refs/heads/master" ]; then
+          echo "::set-output name=env_name::prod"
+        elif [ "${{ github.ref }}" = "refs/heads/develop" ]; then
+          echo "::set-output name=env_name::dev"
+        else
+            echo "::set-output name=env_name::features"
+        fi         
+
+  deploy:
+    environment: 
+      name: ${{ needs.changes.outputs.environment }}
+    needs: [changes]
+    strategy:
+      matrix:
+        directory: ${{ fromJSON(needs.changes.outputs.functions) }}
+        node-version: [18.x]
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./${{ matrix.directory }}
+
+    steps:
+    - uses: actions/checkout@v3
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v3
+      with:
+        node-version: ${{ matrix.node-version }}
+
+    - run: npm ci
+
+    - name: Deploy '${{ matrix.directory }}' to aws ${{ needs.changes.outputs.environment }} environment
+      uses: serverless/github-action@v3.1
+      with:
+        args: deploy
+      env:
+        SERVERLESS_ACCESS_KEY: ${{ secrets.SERVERLESS_ACCESS_KEY }}
+        # or if using AWS credentials directly
+        # AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        # AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
