@@ -1,9 +1,6 @@
 name: Deploy master branch
 
-on:
-  push:
-    branches:
-      - master
+on: push
 
 jobs:
   changes:
@@ -16,7 +13,6 @@ jobs:
     - uses: dorny/paths-filter@v2
       id: filter
       with:
-        base: 'develop'
         filters: |
           aws-node-typescript: aws-node-typescript/**    
         # folder-2: folder-2/**
