@@ -3,7 +3,7 @@ name: Deploy master branch
 on:
   push:
     branches:
-      - master
+      - [master, develop]
 
 jobs:
   changes:
@@ -16,10 +16,9 @@ jobs:
     - uses: dorny/paths-filter@v2
       id: filter
       with:
-        base: 'develop'
         filters: |
           aws-node-typescript: aws-node-typescript/**    
-        # folder-2: folder-2/**
+          aws-node-http-api-typescript: aws-node-http-api-typescript/**
 
     - name: Check branch and set environment
       id: branch_check
@@ -58,7 +57,8 @@ jobs:
     - name: Deploy '${{ matrix.directory }}' to aws ${{ needs.changes.outputs.environment }} environment
       uses: serverless/github-action@v3.1
       with:
-        args: deploy
+          args: -c "cd ./${{ matrix.directory }} && serverless deploy --region eu-central-1 --stage ${{ needs.changes.outputs.environment }}"
+          entrypoint: /bin/sh
       env:
         SERVERLESS_ACCESS_KEY: ${{ secrets.SERVERLESS_ACCESS_KEY }}
         # or if using AWS credentials directly

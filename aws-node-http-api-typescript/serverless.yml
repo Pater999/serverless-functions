@@ -1,6 +1,6 @@
 org: pater999
 app: aws-node-typescript
-service: aws-node-typescript
+service: aws-node-http-api-project
 frameworkVersion: '3'
 
 provider:
@@ -10,6 +10,10 @@ provider:
 functions:
   hello:
     handler: handler.hello
+    events:
+      - httpApi:
+          path: /
+          method: get
 
 plugins:
   - serverless-esbuild
